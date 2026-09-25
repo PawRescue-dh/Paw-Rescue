@@ -11,9 +11,6 @@ pubspec.lock
 # If you don't generate documentation locally you can remove this line.
 doc/api/
 
-# dotenv environment variables file
-.env*
-
 # Avoid committing generated Javascript files:
 *.dart.js
 # Produced by the --dump-info flag.
@@ -27,3 +24,26 @@ doc/api/
 
 .flutter-plugins
 .flutter-plugins-dependencies
+
+# Environment variables
+.env
+.env.local
+.env.production
+
+# Node / NestJS
+backend/node_modules/
+backend/dist/
+
+# Flutter / Dart
+mobile/.dart_tool/
+mobile/.pub/
+mobile/build/
+mobile/.flutter-plugins
+mobile/.flutter-plugins-dependencies
+mobile/.idea/
+mobile/android/.gradle/
+mobile/ios/Pods/
+
+# OS files
+.DS_Store
+Thumbs.db

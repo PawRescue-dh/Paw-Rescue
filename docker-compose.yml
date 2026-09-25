@@ -1,0 +1,20 @@
+version: '3.8'
+
+services:
+  pawrescue-db:
+    image: postgis/postgis:15-3.4
+    container_name: pawrescue_postgres
+    restart: always
+    env_file:
+      - ./backend/.env # <-- AGREGA ESTA LÍNEA
+    environment:
+      POSTGRES_USER: ${DB_USER}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+      POSTGRES_DB: ${DB_NAME}
+    ports:
+      - "5432:5432"
+    volumes:
+      - pawrescue_data:/var/lib/postgresql/data
+
+volumes:
+  pawrescue_data:
