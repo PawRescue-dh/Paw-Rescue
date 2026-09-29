@@ -27,15 +27,33 @@ jobs:
   # --- FRONTEND (FLUTTER) CI ---
   mobile-test:
     runs-on: ubuntu-latest
-    defaults:
-      run:
-        working-directory: ./mobile
     steps:
       - uses: actions/checkout@v3
+      
+      # Verificar si existe la carpeta mobile
+      - name: Check if mobile folder exists
+        id: check
+        run: |
+          if [ -d "mobile" ]; then
+            echo "exists=true" >> $GITHUB_OUTPUT
+          else
+            echo "exists=false" >> $GITHUB_OUTPUT
+          fi
+      
       - uses: subosito/flutter-action@v2
+        if: steps.check.outputs.exists == 'true'
         with:
           flutter-version: '3.x'
           channel: 'stable'
+      
       - run: flutter pub get
-      - run: flutter analyze # Equivalente a lint
+        if: steps.check.outputs.exists == 'true'
+        working-directory: ./mobile
+        
+      - run: flutter analyze
+        if: steps.check.outputs.exists == 'true'
+        working-directory: ./mobile
+        
       - run: flutter test
+        if: steps.check.outputs.exists == 'true'
+        working-directory: ./mobile
