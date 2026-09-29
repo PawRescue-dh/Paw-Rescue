@@ -19,7 +19,8 @@ jobs:
         uses: actions/setup-node@v3
         with:
           node-version: '18.x'
-      - run: npm install
+      - run: rm -rf node_modules package-lock.json
+      - run: npm ci || npm install
       - run: npm run lint
       - run: npm run test
 
