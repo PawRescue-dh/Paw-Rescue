@@ -1,20 +1,23 @@
-version: '3.8'
-
 services:
   pawrescue-db:
     image: postgis/postgis:15-3.4
     container_name: pawrescue_postgres
     restart: always
     env_file:
-      - ./backend/.env # <-- AGREGA ESTA LÍNEA
+      - ./backend/.env
     environment:
-      POSTGRES_USER: ${DB_USER}
-      POSTGRES_PASSWORD: ${DB_PASSWORD}
-      POSTGRES_DB: ${DB_NAME}
+      POSTGRES_USER: ${DB_USER:?Define DB_USER usando --env-file backend/.env}
+      POSTGRES_PASSWORD: ${DB_PASSWORD:?Define DB_PASSWORD usando --env-file backend/.env}
+      POSTGRES_DB: ${DB_NAME:?Define DB_NAME usando --env-file backend/.env}
     ports:
       - "5432:5432"
     volumes:
       - pawrescue_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U "$$POSTGRES_USER" -d "$$POSTGRES_DB"']
+      interval: 5s
+      timeout: 5s
+      retries: 10
 
 volumes:
   pawrescue_data:

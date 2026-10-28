@@ -14,21 +14,50 @@ jobs:
       run:
         working-directory: ./backend
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - name: Use Node.js
-        uses: actions/setup-node@v3
+        uses: actions/setup-node@v4
         with:
-          node-version: '18.x'
-      - run: rm -rf node_modules package-lock.json
-      - run: npm ci || npm install
-      # - run: npm run lint
-      # - run: npm run test
+          node-version: '24.x'
+          cache: npm
+          cache-dependency-path: backend/package-lock.json
+      - run: npm ci
+      - run: npm run lint
+      - run: npm test -- --runInBand
+      - run: npm run build
+      - run: npm run db:migrate
+      - run: npm run db:seed
+      - run: npm run db:verify
+      - run: npm run test:e2e -- --runInBand
+    env:
+      DB_HOST: localhost
+      DB_PORT: 5432
+      DB_USER: paw_test
+      DB_PASSWORD: LocalTestOnly123
+      DB_NAME: paw_test
+
+      SEED_PASSWORD: LocalDemo123!
+      NODE_ENV: test
+    services:
+      postgres:
+        image: postgis/postgis:15-3.4
+        env:
+          POSTGRES_USER: paw_test
+          POSTGRES_PASSWORD: LocalTestOnly123
+          POSTGRES_DB: paw_test
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U paw_test -d paw_test"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
 
   # --- FRONTEND (FLUTTER) CI ---
   mobile-test:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       
       # Verificar si existe la carpeta mobile
       - name: Check if mobile folder exists
@@ -43,7 +72,7 @@ jobs:
       - uses: subosito/flutter-action@v2
         if: steps.check.outputs.exists == 'true'
         with:
-          flutter-version: '3.x'
+          flutter-version: '3.47.6'
           channel: 'stable'
       
       - run: flutter pub get

@@ -2,6 +2,9 @@ import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
+import { TypeOrmModule } from '@nestjs/typeorm';
+import { databaseOptions } from './database/data-source';
+
 
 @Module({
   imports: [
@@ -10,6 +13,8 @@ import { AppService } from './app.service';
       isGlobal: true,
       envFilePath: '.env',
     }),
+    TypeOrmModule.forRootAsync({ useFactory: databaseOptions }),
+
   ],
   controllers: [AppController],
   providers: [AppService],
