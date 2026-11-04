@@ -4,17 +4,16 @@ import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { databaseOptions } from './database/data-source';
-
+import { AuthModule } from './auth/auth.module';
 
 @Module({
   imports: [
-    // Esto le dice a NestJS que cargue el archivo .env y esté disponible en toda la app
     ConfigModule.forRoot({
       isGlobal: true,
       envFilePath: '.env',
     }),
     TypeOrmModule.forRootAsync({ useFactory: databaseOptions }),
-
+    AuthModule,
   ],
   controllers: [AppController],
   providers: [AppService],
