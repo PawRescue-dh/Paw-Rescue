@@ -1,5 +1,7 @@
 import 'dart:convert';
 import 'dart:typed_data';
+import 'package:camera/camera.dart';
+import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:image_picker/image_picker.dart';
@@ -64,13 +66,47 @@ class _ReportScreenState extends State<ReportScreen> {
         _loadingGps = false;
       });
     } catch (e) {
-      // Coordenadas por defecto (Dolores Hidalgo, Gto.) si Chrome bloquea ubicación local
       if (!mounted) return;
       setState(() {
         _latitude = 21.1561;
         _longitude = -100.9308;
         _loadingGps = false;
       });
+    }
+  }
+
+  Future<void> _handleCameraPressed() async {
+    if (kIsWeb) {
+      try {
+        final cameras = await availableCameras();
+        if (cameras.isEmpty) {
+          if (!mounted) return;
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('No se detectó ninguna cámara en este equipo')),
+          );
+          return;
+        }
+
+        if (!mounted) return;
+        final Uint8List? capturedBytes = await showDialog<Uint8List>(
+          context: context,
+          builder: (context) => _WebCameraDialog(camera: cameras.first),
+        );
+
+        if (capturedBytes != null && mounted) {
+          setState(() {
+            _imageBytes = capturedBytes;
+            _photoBase64 = base64Encode(capturedBytes);
+          });
+        }
+      } catch (e) {
+        if (!mounted) return;
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Error al acceder a la cámara: $e')),
+        );
+      }
+    } else {
+      await _pickImage(ImageSource.camera);
     }
   }
 
@@ -158,7 +194,7 @@ class _ReportScreenState extends State<ReportScreen> {
 
           // Vista previa de foto
           Container(
-            height: 180,
+            height: 200,
             decoration: BoxDecoration(
               color: Colors.grey.shade200,
               borderRadius: BorderRadius.circular(12),
@@ -185,7 +221,7 @@ class _ReportScreenState extends State<ReportScreen> {
             children: [
               Expanded(
                 child: OutlinedButton.icon(
-                  onPressed: () => _pickImage(ImageSource.camera),
+                  onPressed: _handleCameraPressed,
                   icon: const Icon(Icons.camera_alt),
                   label: const Text('Cámara'),
                 ),
@@ -279,6 +315,75 @@ class _ReportScreenState extends State<ReportScreen> {
           ),
         ],
       ),
+    );
+  }
+}
+
+class _WebCameraDialog extends StatefulWidget {
+  final CameraDescription camera;
+  const _WebCameraDialog({required this.camera});
+
+  @override
+  State<_WebCameraDialog> createState() => _WebCameraDialogState();
+}
+
+class _WebCameraDialogState extends State<_WebCameraDialog> {
+  late CameraController _controller;
+  bool _initialized = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = CameraController(widget.camera, ResolutionPreset.medium);
+    _controller.initialize().then((_) {
+      if (!mounted) return;
+      setState(() => _initialized = true);
+    });
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  Future<void> _takePicture() async {
+    if (!_controller.value.isInitialized) return;
+    final XFile file = await _controller.takePicture();
+    final bytes = await file.readAsBytes();
+    if (!mounted) return;
+    Navigator.of(context).pop(bytes);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return AlertDialog(
+      title: const Text('Capturar Fotografía'),
+      content: SizedBox(
+        width: 400,
+        height: 300,
+        child: _initialized
+            ? ClipRRect(
+                borderRadius: BorderRadius.circular(8),
+                child: CameraPreview(_controller),
+              )
+            : const Center(child: CircularProgressIndicator()),
+      ),
+      actions: [
+        TextButton(
+          onPressed: () => Navigator.of(context).pop(),
+          child: const Text('Cancelar'),
+        ),
+        ElevatedButton.icon(
+          onPressed: _initialized ? _takePicture : null,
+          style: ElevatedButton.styleFrom(
+            backgroundColor: Colors.teal,
+            foregroundColor: Colors.white,
+          ),
+          icon: const Icon(Icons.camera),
+          label: const Text('Tomar Foto'),
+        ),
+      ],
     );
   }
 }

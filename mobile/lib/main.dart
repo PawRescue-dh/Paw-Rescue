@@ -1,4 +1,3 @@
-library;
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:get_it/get_it.dart';
@@ -6,17 +5,15 @@ import 'screens/login_screen.dart';
 
 final getIt = GetIt.instance;
 
-/// Configures dependency injection.
-void setupDependencies() {
-  // TODO: Register repositories, view models, and data sources here.
-}
+void setupDependencies() {}
 
 void main() {
-  runApp(const PawRescueApp());
+  setupDependencies();
+  runApp(const MyApp());
 }
 
-class PawRescueApp extends StatelessWidget {
-  const PawRescueApp({super.key});
+class MyApp extends StatelessWidget {
+  const MyApp({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -33,7 +30,6 @@ class PawRescueApp extends StatelessWidget {
         ),
         home: const LoginScreen(),
       ),
-      home: const LoginScreen(),
     );
   }
 }

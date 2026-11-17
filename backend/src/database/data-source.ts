@@ -1,21 +1,24 @@
-import 'reflect-metadata';
-import { config } from 'dotenv';
-import { DataSource } from 'typeorm';
-import { Report, Shelter, User } from './entities';
-import { InitialSchema1790000000000 } from './migrations/1790000000000-InitialSchema';
+import 'dotenv/config';
+import { TypeOrmModuleOptions } from '@nestjs/typeorm';
+import { DataSource, DataSourceOptions } from 'typeorm';
+import { User } from '../auth/user.entity';
+import { Report } from '../reports/report.entity';
 
-config();
-
-export const databaseOptions = () => ({
-  type: 'postgres' as const,
-  host: process.env.DB_HOST ?? 'localhost',
-  port: Number(process.env.DB_PORT ?? 5432),
-  username: process.env.DB_USER,
-  password: process.env.DB_PASSWORD,
-  database: process.env.DB_NAME,
-  entities: [User, Report, Shelter],
-  migrations: [InitialSchema1790000000000],
+const getBaseConfig = (): DataSourceOptions => ({
+  type: 'postgres',
+  host: process.env.DB_HOST || 'localhost',
+  port: parseInt(process.env.DB_PORT || '5432', 10),
+  username: process.env.DB_USERNAME || process.env.DB_USER || 'postgres',
+  password: process.env.DB_PASSWORD || process.env.DB_PASS || 'postgres',
+  database: process.env.DB_DATABASE || process.env.DB_NAME || 'paw_rescue',
+  entities: [User, Report],
   synchronize: true,
 });
 
-export default new DataSource(databaseOptions());
+export const databaseOptions = (): TypeOrmModuleOptions => ({
+  ...getBaseConfig(),
+  autoLoadEntities: true,
+});
+
+const dataSource = new DataSource(getBaseConfig());
+export default dataSource;
