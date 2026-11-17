@@ -12,13 +12,11 @@ void setupDependencies() {
 }
 
 void main() {
-  setupDependencies();
-  runApp(const MyApp());
+  runApp(const PawRescueApp());
 }
 
-/// The root widget of the application.
-class MyApp extends StatelessWidget {
-  const MyApp({super.key});
+class PawRescueApp extends StatelessWidget {
+  const PawRescueApp({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -35,6 +33,7 @@ class MyApp extends StatelessWidget {
         ),
         home: const LoginScreen(),
       ),
+      home: const LoginScreen(),
     );
   }
 }

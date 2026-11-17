@@ -9,7 +9,7 @@ import { ReportsModule } from './reports/reports.module';
 
 @Module({
   imports: [
-    // Esto le dice a NestJS que cargue el archivo .env y esté disponible en toda la app
+    
     ConfigModule.forRoot({
       isGlobal: true,
       envFilePath: '.env',
