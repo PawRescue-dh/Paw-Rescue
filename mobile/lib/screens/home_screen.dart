@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import '../services/auth_service.dart';
 import 'login_screen.dart';
 import 'report_screen.dart';
+import 'map_screen.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -42,24 +43,8 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   Widget build(BuildContext context) {
     final List<Widget> pages = [
-      // Pestaña 0: Mapa (Se conectará en PAW-8)
-      const Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Icon(Icons.map_outlined, size: 64, color: Colors.teal),
-            SizedBox(height: 16),
-            Text(
-              'Mapa de Alertas Activas',
-              style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-            ),
-            SizedBox(height: 8),
-            Text('Aquí se mostrarán los animales reportados cerca de ti'),
-          ],
-        ),
-      ),
-
-      // Pestaña 1: Reportar (Conectado con PAW-7)
+     const MapScreen(),
+      // Pestaña 1: Reportar
       const ReportScreen(),
 
       // Pestaña 2: Perfil y Cierre de Sesión
