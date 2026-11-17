@@ -15,7 +15,7 @@ export const databaseOptions = () => ({
   database: process.env.DB_NAME,
   entities: [User, Report, Shelter],
   migrations: [InitialSchema1790000000000],
-  synchronize: false,
+  synchronize: true,
 });
 
 export default new DataSource(databaseOptions());

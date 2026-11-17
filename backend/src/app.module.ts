@@ -4,6 +4,7 @@ import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { databaseOptions } from './database/data-source';
+import { ReportsModule } from './reports/reports.module';
 
 
 @Module({
@@ -14,6 +15,7 @@ import { databaseOptions } from './database/data-source';
       envFilePath: '.env',
     }),
     TypeOrmModule.forRootAsync({ useFactory: databaseOptions }),
+    ReportsModule,
 
   ],
   controllers: [AppController],
