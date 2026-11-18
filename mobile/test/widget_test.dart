@@ -1,9 +1,13 @@
+import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:pawrescue/main.dart';
 
 void main() {
-  testWidgets('Muestra la pantalla inicial de PawRescue', (tester) async {
+  testWidgets('PawRescue app renders login screen', (WidgetTester tester) async {
     await tester.pumpWidget(const MyApp());
-    expect(find.text('PawRescue App'), findsOneWidget);
+    await tester.pump();
+
+    expect(find.byType(MaterialApp), findsOneWidget);
+    expect(find.byType(TextField), findsNWidgets(2));
   });
 }
