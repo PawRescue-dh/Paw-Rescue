@@ -34,4 +34,22 @@ class ReportsService {
       return false;
     }
   }
+
+  Future<List<dynamic>> getReports() async {
+    try {
+      final token = await _storage.read(key: 'jwt_token');
+      final response = await _dio.get(
+        '/reports',
+        options: Options(
+          headers: token != null ? {'Authorization': 'Bearer $token'} : null,
+        ),
+      );
+      if (response.statusCode == 200) {
+        return response.data as List<dynamic>;
+      }
+      return [];
+    } catch (e) {
+      return [];
+    }
+  }
 }
