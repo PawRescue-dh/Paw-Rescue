@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../services/auth_service.dart';
 import 'home_screen.dart';
+import 'register_screen.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -17,7 +18,7 @@ class _LoginScreenState extends State<LoginScreen> {
 
   void _handleLogin() async {
     setState(() => _loading = true);
-    final ok = await _authService.login(_emailCtrl.text, _passCtrl.text);
+    final ok = await _authService.login(_emailCtrl.text.trim(), _passCtrl.text);
     setState(() => _loading = false);
 
     if (!mounted) return;
@@ -69,10 +70,23 @@ class _LoginScreenState extends State<LoginScreen> {
               height: 48,
               child: ElevatedButton(
                 onPressed: _loading ? null : _handleLogin,
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.teal,
+                  foregroundColor: Colors.white,
+                ),
                 child: _loading
-                    ? const CircularProgressIndicator()
+                    ? const CircularProgressIndicator(color: Colors.white)
                     : const Text('Ingresar'),
               ),
+            ),
+            const SizedBox(height: 12),
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).push(
+                  MaterialPageRoute(builder: (_) => const RegisterScreen()),
+                );
+              },
+              child: const Text('¿No tienes cuenta? Regístrate aquí'),
             ),
           ],
         ),
