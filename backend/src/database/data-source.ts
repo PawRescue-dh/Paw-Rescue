@@ -12,7 +12,12 @@ const getBaseConfig = (): DataSourceOptions => ({
   password: process.env.DB_PASSWORD || process.env.DB_PASS || 'postgres',
   database: process.env.DB_DATABASE || process.env.DB_NAME || 'paw_rescue',
   entities: [User, Report],
-  synchronize: true,
+  // Schema changes should be applied through migrations, never automatically in production.
+  synchronize:
+    process.env.NODE_ENV !== 'production' &&
+    process.env.DB_SYNCHRONIZE === 'true',
+  // Set DB_SSL=true for managed PostgreSQL providers such as Supabase.
+  ssl: process.env.DB_SSL === 'true',
 });
 
 export const databaseOptions = (): TypeOrmModuleOptions => ({
