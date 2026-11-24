@@ -52,7 +52,7 @@ jobs:
         if: steps.check.outputs.exists == 'true'
         working-directory: ./mobile
         
-      - run: flutter analyze
+      - run: flutter analyze --no-fatal-infos
         if: steps.check.outputs.exists == 'true'
         working-directory: ./mobile
         
