@@ -13,7 +13,7 @@ void main() {
     expect(find.byType(TextFormField), findsNWidgets(4));
     expect(find.text('Ciudadano'), findsOneWidget);
     expect(find.text('Albergue'), findsOneWidget);
-    expect(find.text('aviso de privacidad'), findsOneWidget);
+    expect(find.textContaining('aviso de privacidad', findRichText: true), findsOneWidget);
   });
 
   testWidgets('Exige datos válidos al registrarse', (WidgetTester tester) async {

@@ -76,14 +76,15 @@ class AuthService {
   /// Sesión guardada en el dispositivo, o null si no hay.
   Future<UserSession?> currentUser() async {
     try {
-      final token = await _storage.read(key: 'jwt_token');
-      final role = await _storage.read(key: 'user_role');
+      const limit = Duration(seconds: 3);
+      final token = await _storage.read(key: 'jwt_token').timeout(limit);
+      final role = await _storage.read(key: 'user_role').timeout(limit);
       if (token == null || token.isEmpty || role == null) return null;
-      final phone = await _storage.read(key: 'user_phone');
+      final phone = await _storage.read(key: 'user_phone').timeout(limit);
       return UserSession(
-        id: await _storage.read(key: 'user_id') ?? '',
-        name: await _storage.read(key: 'user_name') ?? 'Usuario',
-        email: await _storage.read(key: 'user_email') ?? '',
+        id: await _storage.read(key: 'user_id').timeout(limit) ?? '',
+        name: await _storage.read(key: 'user_name').timeout(limit) ?? 'Usuario',
+        email: await _storage.read(key: 'user_email').timeout(limit) ?? '',
         role: role,
         phone: (phone == null || phone.isEmpty) ? null : phone,
       );
