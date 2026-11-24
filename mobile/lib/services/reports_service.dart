@@ -1,11 +1,13 @@
 import 'package:dio/dio.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
-import 'package:flutter/foundation.dart' show kIsWeb;
+import '../core/config.dart';
 
 class ReportsService {
-  static String get baseUrl => kIsWeb ? 'http://localhost:3000' : 'http://10.0.2.2:3000';
-
-  final Dio _dio = Dio(BaseOptions(baseUrl: baseUrl));
+  final Dio _dio = Dio(BaseOptions(
+    baseUrl: AppConfig.apiUrl,
+    connectTimeout: AppConfig.connectTimeout,
+    receiveTimeout: AppConfig.receiveTimeout,
+  ));
   final FlutterSecureStorage _storage = const FlutterSecureStorage();
 
   Future<bool> createReport({
