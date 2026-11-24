@@ -1,11 +1,16 @@
 import 'package:dio/dio.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import '../core/config.dart';
 
 class AuthService {
-  // Nota: Para Chrome usa 'http://localhost:3000'. Para Emulador Android usa 'http://10.0.2.2:3000'
-  static const String baseUrl = 'http://localhost:3000';
+  // La URL se configura con --dart-define=API_URL=... (ver lib/core/config.dart)
+  static const String baseUrl = AppConfig.apiUrl;
 
-  final Dio _dio = Dio(BaseOptions(baseUrl: baseUrl));
+  final Dio _dio = Dio(BaseOptions(
+    baseUrl: baseUrl,
+    connectTimeout: AppConfig.connectTimeout,
+    receiveTimeout: AppConfig.receiveTimeout,
+  ));
   final FlutterSecureStorage _storage = const FlutterSecureStorage();
 
   Future<bool> login(String email, String password) async {
