@@ -3,6 +3,10 @@ import { TypeOrmModuleOptions } from '@nestjs/typeorm';
 import { DataSource, DataSourceOptions } from 'typeorm';
 import { User } from '../auth/user.entity';
 import { Report } from '../reports/report.entity';
+import { ReportComment } from '../reports/report-comment.entity';
+import { Pet } from '../pets/pet.entity';
+import { AdoptionRequest } from '../pets/adoption-request.entity';
+import { Activity } from '../activity/activity.entity';
 
 const LOCAL_HOSTS = ['localhost', '127.0.0.1', 'db', 'postgres'];
 
@@ -25,7 +29,7 @@ const getBaseConfig = (): DataSourceOptions => {
     username: process.env.DB_USERNAME || process.env.DB_USER || 'postgres',
     password: process.env.DB_PASSWORD || process.env.DB_PASS || 'postgres',
     database: process.env.DB_DATABASE || process.env.DB_NAME || 'paw_rescue',
-    entities: [User, Report],
+    entities: [User, Report, ReportComment, Pet, AdoptionRequest, Activity],
     synchronize: true,
     ssl: useSsl(host) ? { rejectUnauthorized: false } : false,
   };

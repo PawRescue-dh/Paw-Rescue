@@ -30,6 +30,12 @@ describe('Validación de entradas (seguridad)', () => {
     await expect(run(body, RegisterDto)).rejects.toBeInstanceOf(BadRequestException);
   });
 
+  it('registro rechaza teléfono inválido y acepta uno válido', async () => {
+    const base = { name: 'Ana', email: 'a@b.com', password: 'Password123!', role: 'Ciudadano' };
+    await expect(run({ ...base, phone: 'abc' }, RegisterDto)).rejects.toBeInstanceOf(BadRequestException);
+    await expect(run({ ...base, phone: '418 123 4567', acceptedPrivacy: true }, RegisterDto)).resolves.toBeDefined();
+  });
+
   it('login rechaza cuerpo vacío', async () => {
     await expect(run({}, LoginDto)).rejects.toBeInstanceOf(BadRequestException);
   });

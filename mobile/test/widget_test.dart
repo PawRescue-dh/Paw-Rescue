@@ -1,13 +1,13 @@
-import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:pawrescue/main.dart';
+import 'package:pawrescue/screens/login_screen.dart';
 
 void main() {
-  testWidgets('PawRescue app renders login screen', (WidgetTester tester) async {
+  testWidgets('Sin sesión guardada, PawRescue abre la pantalla de login',
+      (WidgetTester tester) async {
     await tester.pumpWidget(const MyApp());
-    await tester.pump();
+    await tester.pumpAndSettle();
 
-    expect(find.byType(MaterialApp), findsOneWidget);
-    expect(find.byType(TextField), findsNWidgets(2));
+    expect(find.byType(LoginScreen), findsOneWidget);
   });
 }

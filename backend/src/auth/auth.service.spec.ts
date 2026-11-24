@@ -31,7 +31,7 @@ describe('AuthService', () => {
     repo.findOne.mockResolvedValue({ id: '1', name: 'Ana', email: 'ana@pawrescue.com', role: 'Ciudadano', passwordHash });
     const r = await service.login(' ANA@pawrescue.com ', 'Password123!');
     expect(r.access_token).toBe('mock_token');
-    expect(r.user).toEqual({ id: '1', name: 'Ana', email: 'ana@pawrescue.com', role: 'Ciudadano' });
+    expect(r.user).toEqual({ id: '1', name: 'Ana', email: 'ana@pawrescue.com', role: 'Ciudadano', phone: null });
     expect(r.user).not.toHaveProperty('passwordHash');
   });
 
@@ -58,5 +58,14 @@ describe('AuthService', () => {
     const saved = repo.create.mock.calls[0][0];
     expect(saved.passwordHash).not.toBe('Password123!');
     expect(await bcrypt.compare('Password123!', saved.passwordHash)).toBe(true);
+  });
+
+  it('register guarda teléfono y la fecha de aceptación del aviso de privacidad', async () => {
+    repo.findOne.mockResolvedValueOnce(null);
+    repo.findOne.mockImplementationOnce(() => Promise.resolve(repo.create.mock.results[0].value));
+    await service.register('Carlos', 'c@d.com', 'Rescate2026!', 'Albergue', ' 4181234567 ', true);
+    const saved = repo.create.mock.calls[0][0];
+    expect(saved.phone).toBe('4181234567');
+    expect(saved.privacyAcceptedAt).toBeInstanceOf(Date);
   });
 });
