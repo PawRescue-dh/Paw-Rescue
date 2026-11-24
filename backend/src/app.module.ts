@@ -6,6 +6,8 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { databaseOptions } from './database/data-source';
 import { AuthModule } from './auth/auth.module';
 import { ReportsModule } from './reports/reports.module';
+import { PetsModule } from './pets/pets.module';
+import { ActivityModule } from './activity/activity.module';
 
 @Module({
   imports: [
@@ -16,6 +18,8 @@ import { ReportsModule } from './reports/reports.module';
     TypeOrmModule.forRootAsync({ useFactory: databaseOptions }),
     AuthModule,
     ReportsModule,
+    PetsModule,
+    ActivityModule,
   ],
   controllers: [AppController],
   providers: [AppService],

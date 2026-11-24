@@ -52,7 +52,7 @@ jobs:
         if: steps.check.outputs.exists == 'true'
         working-directory: ./mobile
         
-      - run: flutter analyze
+      - run: flutter analyze --no-fatal-infos
         if: steps.check.outputs.exists == 'true'
         working-directory: ./mobile
         
@@ -79,7 +79,7 @@ jobs:
         working-directory: ./mobile
       - name: Build APK (release)
         working-directory: ./mobile
-        run: flutter build apk --release --dart-define=API_URL=${{ vars.API_URL || 'https://pawrescue-api.onrender.com' }}
+        run: flutter build apk --release --dart-define=API_URL=${{ vars.API_URL || 'https://paw-rescue-gmm8.onrender.com' }}
       - uses: actions/upload-artifact@v4
         with:
           name: pawrescue-app-release

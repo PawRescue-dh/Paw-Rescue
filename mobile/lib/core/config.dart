@@ -6,7 +6,7 @@
 class AppConfig {
   static const String apiUrl = String.fromEnvironment(
     'API_URL',
-    defaultValue: 'https://pawrescue-api.onrender.com',
+    defaultValue: 'https://paw-rescue-gmm8.onrender.com',
   );
 
   /// Render (plan gratuito) tarda en "despertar"; se da margen amplio.

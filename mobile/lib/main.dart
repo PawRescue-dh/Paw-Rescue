@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:get_it/get_it.dart';
-import 'screens/login_screen.dart';
+import 'core/theme.dart';
+import 'screens/home_screen.dart';
 
 final getIt = GetIt.instance;
 
@@ -24,11 +25,8 @@ class MyApp extends StatelessWidget {
       child: MaterialApp(
         title: 'PawRescue',
         debugShowCheckedModeBanner: false,
-        theme: ThemeData(
-          colorScheme: ColorScheme.fromSeed(seedColor: Colors.teal),
-          useMaterial3: true,
-        ),
-        home: const LoginScreen(),
+        theme: buildTheme(),
+        home: const HomeScreen(),
       ),
     );
   }

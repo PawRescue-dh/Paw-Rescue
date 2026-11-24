@@ -13,7 +13,14 @@ export class AuthService {
     private jwtService: JwtService,
   ) {}
 
-  async register(name: string, email: string, password: string, role: 'Ciudadano' | 'Albergue') {
+  async register(
+    name: string,
+    email: string,
+    password: string,
+    role: 'Ciudadano' | 'Albergue',
+    phone?: string,
+    acceptedPrivacy?: boolean,
+  ) {
     const cleanEmail = email.trim().toLowerCase();
     const exists = await this.usersRepo.findOne({ where: { email: cleanEmail } });
     if (exists) throw new ConflictException('El correo ya está registrado');
@@ -24,6 +31,8 @@ export class AuthService {
       email: cleanEmail,
       passwordHash,
       role,
+      phone: phone ? phone.trim() : null,
+      privacyAcceptedAt: acceptedPrivacy ? new Date() : null,
     });
     await this.usersRepo.save(user);
 
@@ -38,7 +47,7 @@ export class AuthService {
     const isMatch = await bcrypt.compare(password, user.passwordHash);
     if (!isMatch) throw new UnauthorizedException('Credenciales inválidas');
 
-    const payload = { sub: user.id, email: user.email, role: user.role };
+    const payload = { sub: user.id, email: user.email, role: user.role, name: user.name };
     return {
       access_token: this.jwtService.sign(payload),
       user: {
@@ -46,6 +55,7 @@ export class AuthService {
         name: user.name,
         email: user.email,
         role: user.role,
+        phone: user.phone ?? null,
       },
     };
   }

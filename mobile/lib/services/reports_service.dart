@@ -1,14 +1,10 @@
-import 'package:dio/dio.dart';
-import 'package:flutter_secure_storage/flutter_secure_storage.dart';
-import 'package:flutter/foundation.dart' show kIsWeb;
+import '../core/api_client.dart';
+import '../models/models.dart';
 
 class ReportsService {
-  static String get baseUrl => kIsWeb ? 'http://localhost:3000' : 'http://10.0.2.2:3000';
+  final ApiClient _api = ApiClient.instance;
 
-  final Dio _dio = Dio(BaseOptions(baseUrl: baseUrl));
-  final FlutterSecureStorage _storage = const FlutterSecureStorage();
-
-  Future<bool> createReport({
+  Future<void> createReport({
     required String species,
     required String urgency,
     required String description,
@@ -16,79 +12,42 @@ class ReportsService {
     required double longitude,
     String? photoBase64,
   }) async {
-    try {
-      final token = await _storage.read(key: 'jwt_token');
-      final response = await _dio.post(
-        '/reports',
-        data: {
+    await _api.run((dio) => dio.post('/reports', data: {
           'species': species,
           'urgency': urgency,
           'description': description,
           'latitude': latitude,
           'longitude': longitude,
           'photoBase64': photoBase64 ?? '',
-        },
-        options: Options(
-          headers: token != null ? {'Authorization': 'Bearer $token'} : null,
-        ),
-      );
-      return response.statusCode == 200 || response.statusCode == 201;
-    } catch (e) {
-      return false;
-    }
+        }));
   }
 
-  Future<List<dynamic>> getReports() async {
-    try {
-      final token = await _storage.read(key: 'jwt_token');
-      final response = await _dio.get(
-        '/reports',
-        options: Options(
-          headers: token != null ? {'Authorization': 'Bearer $token'} : null,
-        ),
-      );
-      if (response.statusCode == 200) {
-        return response.data as List<dynamic>;
-      }
-      return [];
-    } catch (e) {
-      return [];
-    }
+  /// Albergue: todos los reportes. Ciudadano: solo los suyos. Sin fotos.
+  Future<List<Report>> getReports() async {
+    final response = await _api.run((dio) => dio.get('/reports'));
+    return (response.data as List)
+        .map((e) => Report.fromJson(Map<String, dynamic>.from(e as Map)))
+        .toList();
   }
 
-  /// Detalle completo (incluye la foto). El listado no la trae para ser ligero.
-  Future<Map<String, dynamic>?> getReportById(String id) async {
-    try {
-      final token = await _storage.read(key: 'jwt_token');
-      final response = await _dio.get(
-        '/reports/$id',
-        options: Options(
-          headers: token != null ? {'Authorization': 'Bearer $token'} : null,
-        ),
-      );
-      if (response.statusCode == 200) {
-        return Map<String, dynamic>.from(response.data as Map);
-      }
-      return null;
-    } catch (e) {
-      return null;
-    }
+  /// Detalle completo (incluye la foto).
+  Future<Report> getReportById(String id) async {
+    final response = await _api.run((dio) => dio.get('/reports/$id'));
+    return Report.fromJson(Map<String, dynamic>.from(response.data as Map));
   }
 
-  /// Solo el rol Albergue puede cambiar el estado (el backend responde 403 si no).
-  Future<bool> updateStatus(String id, String status) async {
-    try {
-      final token = await _storage.read(key: 'jwt_token');
-      final response = await _dio.patch(
-        '/reports/$id/status',
-        data: {'status': status},
-        options: Options(
-          headers: token != null ? {'Authorization': 'Bearer $token'} : null,
-        ),
-      );
-      return response.statusCode == 200;
-    } catch (e) {
-      return false;
-    }
+  Future<void> updateStatus(String id, String status) async {
+    await _api.run((dio) => dio.patch('/reports/$id/status', data: {'status': status}));
+  }
+
+  Future<List<ReportComment>> getComments(String id) async {
+    final response = await _api.run((dio) => dio.get('/reports/$id/comments'));
+    return (response.data as List)
+        .map((e) => ReportComment.fromJson(Map<String, dynamic>.from(e as Map)))
+        .toList();
+  }
+
+  Future<void> addComment(String id, String text) async {
+    await _api.run((dio) => dio.post('/reports/$id/comments', data: {'text': text}));
   }
 }
