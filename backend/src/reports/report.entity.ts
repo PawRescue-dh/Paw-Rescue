@@ -34,6 +34,13 @@ export class Report {
   @Column({ default: 'Pendiente' })
   status: string;
 
+  /** Ciudadano que creó el reporte. */
+  @Column({ type: 'uuid', nullable: true })
+  reporterId: string | null;
+
+  @Column({ type: 'varchar', length: 100, nullable: true })
+  reporterName: string | null;
+
   @CreateDateColumn()
   createdAt: Date;
 }

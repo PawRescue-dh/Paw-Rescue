@@ -1,7 +1,6 @@
 import {
   Body,
   Controller,
-  ForbiddenException,
   Get,
   Param,
   ParseUUIDPipe,
@@ -12,8 +11,12 @@ import {
 } from '@nestjs/common';
 import { ReportsService } from './reports.service';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
+import { AuthUser, requireRole } from '../auth/auth-user';
 import { CreateReportDto } from './dto/create-report.dto';
 import { UpdateStatusDto } from './dto/update-status.dto';
+import { CreateCommentDto } from './dto/create-comment.dto';
+
+type Request = { user: AuthUser };
 
 @UseGuards(JwtAuthGuard)
 @Controller('reports')
@@ -21,19 +24,19 @@ export class ReportsController {
   constructor(private readonly reportsService: ReportsService) {}
 
   @Post()
-  create(@Body() body: CreateReportDto) {
-    return this.reportsService.create(body);
+  create(@Body() body: CreateReportDto, @Req() req: Request) {
+    return this.reportsService.create(body, req.user);
   }
 
-  /** Listado ligero: no incluye la foto (usar GET /reports/:id). */
+  /** Albergue: todos. Ciudadano: solo los suyos. No incluye la foto. */
   @Get()
-  findAll() {
-    return this.reportsService.findAll();
+  findAll(@Req() req: Request) {
+    return this.reportsService.findAll(req.user);
   }
 
   @Get(':id')
-  findOne(@Param('id', new ParseUUIDPipe()) id: string) {
-    return this.reportsService.findOne(id);
+  findOne(@Param('id', new ParseUUIDPipe()) id: string, @Req() req: Request) {
+    return this.reportsService.findOne(id, req.user);
   }
 
   /** Solo los usuarios con rol Albergue pueden cambiar el estado. */
@@ -41,11 +44,23 @@ export class ReportsController {
   updateStatus(
     @Param('id', new ParseUUIDPipe()) id: string,
     @Body() body: UpdateStatusDto,
-    @Req() req: { user?: { role?: string } },
+    @Req() req: Request,
   ) {
-    if (req.user?.role !== 'Albergue') {
-      throw new ForbiddenException('Solo un Albergue puede cambiar el estado');
-    }
-    return this.reportsService.updateStatus(id, body.status);
+    requireRole(req.user, 'Albergue');
+    return this.reportsService.updateStatus(id, body.status, req.user);
+  }
+
+  @Get(':id/comments')
+  comments(@Param('id', new ParseUUIDPipe()) id: string, @Req() req: Request) {
+    return this.reportsService.getComments(id, req.user);
+  }
+
+  @Post(':id/comments')
+  addComment(
+    @Param('id', new ParseUUIDPipe()) id: string,
+    @Body() body: CreateCommentDto,
+    @Req() req: Request,
+  ) {
+    return this.reportsService.addComment(id, body.text, req.user);
   }
 }

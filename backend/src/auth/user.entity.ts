@@ -17,6 +17,12 @@ export class User {
   @Column({ type: 'enum', enum: ['Ciudadano', 'Albergue'] })
   role: 'Ciudadano' | 'Albergue';
 
+  @Column({ type: 'varchar', length: 30, nullable: true })
+  phone: string | null;
+
+  @Column({ name: 'privacy_accepted_at', type: 'timestamp', nullable: true })
+  privacyAcceptedAt: Date | null;
+
   @CreateDateColumn({ name: 'created_at' })
   createdAt: Date;
 }
