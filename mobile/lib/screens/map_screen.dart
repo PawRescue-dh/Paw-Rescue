@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
+import '../services/auth_service.dart';
 import '../services/reports_service.dart';
 
 class MapScreen extends StatefulWidget {
@@ -51,7 +52,32 @@ class _MapScreenState extends State<MapScreen> {
     }
   }
 
-  void _showReportDetails(Map<String, dynamic> report) {
+  /// El listado no trae la foto: se pide el detalle al tocar el marcador.
+  Future<void> _openReport(Map<String, dynamic> summary) async {
+    final full = await _reportsService.getReportById(summary['id'].toString());
+    final info = await AuthService().getUserInfo();
+    if (!mounted) return;
+    _showReportDetails(
+      full ?? summary,
+      isShelter: info['role'] == 'Albergue',
+    );
+  }
+
+  Future<void> _changeStatus(String id, String status) async {
+    final ok = await _reportsService.updateStatus(id, status);
+    if (!mounted) return;
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(ok
+            ? 'Estado actualizado: $status'
+            : 'No se pudo actualizar el estado'),
+        backgroundColor: ok ? Colors.teal : Colors.red,
+      ),
+    );
+    if (ok) _loadReports();
+  }
+
+  void _showReportDetails(Map<String, dynamic> report, {bool isShelter = false}) {
     final String photoBase64 = report['photoBase64'] ?? '';
     final String species = report['species'] ?? 'Animal';
     final String urgency = report['urgency'] ?? 'Media';
@@ -127,6 +153,32 @@ class _MapScreenState extends State<MapScreen> {
                 style: TextStyle(fontSize: 12, color: Colors.grey.shade600),
               ),
               const SizedBox(height: 16),
+              if (isShelter && report['id'] != null) ...[
+                Row(
+                  children: [
+                    Expanded(
+                      child: OutlinedButton(
+                        onPressed: () {
+                          Navigator.pop(context);
+                          _changeStatus(report['id'].toString(), 'En atención');
+                        },
+                        child: const Text('En atención'),
+                      ),
+                    ),
+                    const SizedBox(width: 8),
+                    Expanded(
+                      child: OutlinedButton(
+                        onPressed: () {
+                          Navigator.pop(context);
+                          _changeStatus(report['id'].toString(), 'Resuelto');
+                        },
+                        child: const Text('Resuelto'),
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 8),
+              ],
               ElevatedButton(
                 onPressed: () => Navigator.pop(context),
                 style: ElevatedButton.styleFrom(
@@ -154,7 +206,7 @@ class _MapScreenState extends State<MapScreen> {
         width: 45,
         height: 45,
         child: GestureDetector(
-          onTap: () => _showReportDetails(report),
+          onTap: () => _openReport(Map<String, dynamic>.from(report as Map)),
           child: Container(
             decoration: BoxDecoration(
               color: _getUrgencyColor(urgency),
